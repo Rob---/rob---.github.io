@@ -4,12 +4,21 @@ frameRate(60);
 
 
 //ProgramCodeGoesHere
-
-//Final Project Checkpoint #1
+//Final Project Checkpoint #2
 //Author: Robert de Vries
 
 //define the angleMode to be radians
 angleMode = "radians";
+
+var gameState = 0;
+var wordBank = [
+    "hello",
+    "goodbye",
+    "afternoon",
+    "water",
+    "racing",
+    "hi"
+];
 
 //characters
 var player = function(x,y){
@@ -36,6 +45,7 @@ var hangman = function(x,y){
     this.y = y;
     this.state = 0;
     this.currFrame = 0;
+    this.wordLength = 3;
 };
 //define how the hangman is drawn
 hangman.prototype.display = function(){
@@ -47,9 +57,12 @@ hangman.prototype.display = function(){
     //letters (wrong)
     //blanks
     stroke(0,0,0);
-    line(this.x+50,this.y+40,this.x+60, this.y+40);
-    line(this.x+70,this.y+40,this.x+80, this.y+40);
-    line(this.x+90,this.y+40,this.x+100, this.y+40);
+    for (var i = 0; i < this.wordLength; i++){
+        line(this.x+i*20+50,this.y+40,this.x+i*20+60, this.y+40);
+    }
+    //line(this.x+i*20+50,this.y+40,this.x+i*20+60, this.y+40);
+    //line(this.x+70,this.y+40,this.x+80, this.y+40);
+    //line(this.x+90,this.y+40,this.x+100, this.y+40);
     switch(this.state){
         case 0: //nothing
             break;
@@ -125,11 +138,13 @@ hangman.prototype.display = function(){
             break;
     }
     //handle animation of the hangman
-    if (this.currFrame < (frameCount - 15)) {
-        this.currFrame = frameCount;
-        this.state++;
-        if (this.state > 7) {
-            this.state = 0;
+    if (gameState === 0){
+        if (this.currFrame < (frameCount - 15)) {
+            this.currFrame = frameCount;
+            this.state++;
+            if (this.state > 7) {
+                this.state = 0;
+            }
         }
     }
     
@@ -303,26 +318,354 @@ for (var i=0; i<15; i++) {
     waves.push(new wave(30+i*amp, 100+i*period, color(0, 0, 255, 25+i*10)));
 }
 
-var gameState = 0;
+var chosenWord = "";
+var letters = [];
+var keyPressed = function() {
+    var correctLetter = 0;
+    for (var i = 0; i < chosenWord.length; i++){
+        if (key.toString() === chosenWord[i]){
+            letters[i] = 1;
+            correctLetter = 1;
+        }
+    }
+    if (!correctLetter){
+        hangmanObj.state++;
+        if (hangmanObj.state === 6){
+            println("Game over!");
+            gameState = 3;
+        }
+    }
+};
+
+var checkVictory = function(){
+    var win = 1;
+    for (var i = 0; i < letters.length; i++){
+        if (letters[i] === 0){
+            win = 0;
+        }
+    }
+    return win;
+};
+
 mouseClicked = function() {
     if (gameState === 0){
         gameState = 1;
     }
     else if (gameState === 1){
+        var index = round(random(0,wordBank.length));
+        chosenWord = wordBank[index];
         if (mouseX > 180 && mouseX < 250 && mouseY < 190 && mouseY > 160){
-            println("easy");
+            while (chosenWord.length >= 4){
+                index = round(random(0,wordBank.length));
+                chosenWord = wordBank[index];
+            }
+            
+            hangmanObj.wordLength = chosenWord.length;
+            hangmanObj.state = 0;
+            gameState = 2;
         }
         else if (mouseX > 180 && mouseX < 250 && mouseY < 240 && mouseY > 210){
-            println("medium");
+            while (chosenWord.length >= 6 || chosenWord.length <= 2){
+                index = round(random(0,wordBank.length));
+                chosenWord = wordBank[index];
+            }
+            hangmanObj.wordLength = chosenWord.length;
+            hangmanObj.state = 0;
+            gameState = 2;
         }
         else if (mouseX > 180 && mouseX < 250 && mouseY < 290 && mouseY > 260){
-            println("hard");
+            while (chosenWord.length <= 4){
+                index = round(random(0,wordBank.length));
+                chosenWord = wordBank[index];
+            }
+            hangmanObj.wordLength = chosenWord.length;
+            hangmanObj.state = 0;
+            gameState = 2;
         }
         else if (mouseX > 130 && mouseX < 300 && mouseY < 340 && mouseY > 310){
             gameState = 0;
         }
+        //println(chosenWord);
+        for (var i = 0; i < chosenWord.length; i++){
+            letters[i] = 0;
+        }
     }
 };
+
+
+
+var tileMap = [
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "w wwwwj    g   jwwww",
+    "wj   jwwwwwwwwj    w",
+    "wwwwww wwwww   jwwww",
+    "wjjww j jwwwwwwj  ww",
+    "w  wwwwwj jjwwjjwwww",
+    "wjj    www  ww wj  w",
+    "w  wwwwwwwjj  jjjwww",
+    "w  wwwj   jwwww wwww",
+    "wjj   jwwwwwwwwj   w",
+    "w wwwwj        jwwww",
+    "wj    jwwwwwwwwj   w",
+    "wwwwww wwwwwj  jwwww",
+    "wjjwwjj jwjjjwwj zww",
+    "wjj  jwwj jjww jwwww",
+    "wwwwwwwwwwwwwwwwwwww"
+];
+
+
+
+var wallObj = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+var airObj = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+var ghostObj = function(x, y) {
+    this.x = x;
+    this.y = y;
+    this.direction = 1;
+    this.speed = 1;
+    this.cColor = 0;
+    this.timer = 0;
+    this.angle = 0;
+    this.bubbleCounter = 0;
+};
+
+var dotObj = function(x, y) {
+    this.x = x;
+    this.y = y;
+    this.eaten = 0;
+};
+
+var jointObj = function(x, y) {
+    this.x = x;
+    this.y = y;
+};  
+
+var pDotObj = function(x, y) {
+    this.x = x;
+    this.y = y;
+    this.eaten = 0;
+};    
+
+var walls = [];
+var airs = [];
+var ghosts = [];
+var dots = [];
+var joints = [];
+var pDots = [];
+
+var initializeTM = function() {
+    for (var i = 0; i < tileMap.length; i++) {
+        for (var j = 0; j < tileMap[i].length; j++) {
+            switch(tileMap[i][j]) {
+                case 'w':
+                    walls.push(new wallObj(j*20, i*20));
+                    break;
+                case 'g':
+                    ghosts.push(new ghostObj(j*20 + 10, i*20 + 10));
+                    break;
+                case ' ':
+                    break;
+                case 'j':
+                    //dots.push(new dotObj(j*20 + 10, i*20 + 10));
+                    if (tileMap[i][j] === 'j') {
+                        joints.push(new jointObj(j*20  + 10, i*20 + 10));   
+                    }    
+                    break;
+                case 'z':
+                    //pDots.push(new pDotObj(j*20 + 10, i*20 + 10));
+                    playerObj = new player(j*20+10,i*20+20);
+                    break;
+                case 'a':
+                    airs.push(new airObj(j*20,i*20));
+                    break;
+            }    
+        }    
+    }    
+}; 
+
+wallObj.prototype.draw = function() {
+    noStroke();
+    fill(125, 125, 125);
+    rect(this.x, this.y, 20, 20);
+};
+
+airObj.prototype.draw = function() {
+    noStroke();
+};
+
+ghostObj.prototype.draw = function() {
+    noStroke();
+    if (this.cColor === 0) {
+        if (this.bubbleCounter < 225){
+            this.bubbleCounter++;
+        }
+        else{
+            bubbles.push(new bubbleObj(0,this.x,this.y-2));
+            this.bubbleCounter = 0;
+        }
+        pushMatrix();
+        translate(this.x,this.y);
+        rotate(this.angle);
+        noStroke();
+        fill(255, 0, 0);
+        ellipse(0, 0, 40,7.5);
+        triangle(0, -9.5, -10, 1, 0, 1);
+        triangle(-10, 0, 0, 0, 5, 10);
+        if (counter === 3){
+            increase = false;
+        }
+        else if (counter === -5){
+            increase = true;
+        }
+        if (increase === true){
+            counter = counter+0.5;
+        }
+        else{
+            counter = counter-0.5;
+        }
+        triangle((20-counter), -5, 10, 0, (20-counter), 5);
+        fill(0,0,0);
+        ellipse(-15, 0, 2.5, 2.5);
+        popMatrix();
+    }
+    else if (this.cColor === 1) {
+        fill(255, 255, 0);
+        this.timer--;
+        if (this.timer <= 80) {
+            this.cColor = 2;   
+        }    
+    }  
+    else {
+        fill(255, 162, 0);
+        this.timer--;
+        if (this.timer <= 0) {
+            this.cColor = 0;   
+        }       
+    }    
+};
+
+ghostObj.prototype.collide = function() {
+    var c = 0;
+    for (var i = 0; i < walls.length; i++) {
+        if (dist(this.x, this.y, walls[i].x + 10, walls[i].y + 10) < 20) {
+            c = 1;   
+        }    
+    } 
+    for (var i = 0; i < airs.length; i++){
+        if (dist(this.x, this.y, airs[i].x + 10, airs[i].y + 10) < 20) {
+            c = 1;   
+        }    
+    }
+    if (dist(this.x, this.y, playerObj.x, playerObj.y) < 20){
+        c = 2;
+    }
+    
+    return c;
+};    
+
+ghostObj.prototype.atJoint = function() {
+    var j = 0;
+    for (var i = 0; i < joints.length; i++) {
+        if ((this.x === joints[i].x) && (this.y === joints[i].y)) {
+            j = 1;   
+        }    
+    }    
+    
+    return j;
+};    
+
+///// EXPERIMENT /////
+ghostObj.prototype.move = function() {
+    if ((this.atJoint() === 1) && (random(0, 10) < 5)) {
+        this.direction = floor(random(1, 5));
+        
+    }    
+    
+    switch (this.direction) {
+        case 1: //right
+            this.angle = PI;
+            this.x += this.speed;
+            if (this.collide() === 1) {
+                this.x -= this.speed;
+                this.direction = floor(random(1, 5));
+            }
+            break;
+        case 2: //left
+            this.angle = 0;
+            this.x -= this.speed;
+            if (this.collide() === 1) {
+                this.x += this.speed;
+                this.direction = floor(random(1, 5));
+            }
+            break;  
+        case 3: //down
+            this.angle = -PI/2;
+            this.y += this.speed;
+            if (this.collide() === 1) {
+                this.y -= this.speed;
+                this.direction = floor(random(1, 5));
+            }
+            break;
+        case 4: //up
+            this.angle = PI/2;
+            this.y -= this.speed;
+            if (this.collide() === 1) {
+                this.y += this.speed;
+                this.direction = floor(random(1, 5));
+            }
+            break;    
+    }
+    if (this.collide() === 2){
+        println("GAME OVER");
+        gameState = 3;
+    }
+};    
+
+dotObj.prototype.draw = function() {
+    noStroke();
+    fill(0, 255, 0);
+    ellipse(this.x, this.y, 7, 7);
+};
+
+pDotObj.prototype.draw = function() {
+    noStroke();
+    fill(9, 0, 255);
+    ellipse(this.x, this.y, 15, 15);
+};
+
+var drawTM = function() {
+    for (var i = 0; i < walls.length; i++) {
+        walls[i].draw();         
+    } 
+    for (i = 0; i < dots.length; i++) {
+        if (dots[i].eaten === 0) {
+            dots[i].draw();  
+        }    
+    }
+    for (i = 0; i < pDots.length; i++) {
+        if (pDots[i].eaten === 0) {
+            pDots[i].draw();  
+        }   
+    }    
+    for (i = 0; i < ghosts.length; i++) {
+        ghosts[i].draw();     
+        ghosts[i].move();
+    }
+}; 
+
+initializeTM();
+
 
 var draw = function() {
     background(34, 0, 255);
@@ -370,6 +713,24 @@ var draw = function() {
         text("Medium", 200, 225);
         text("Hard", 200, 275);
         text("Return to starting screen",150,325);
+    }
+    else if (gameState === 2){
+        hangmanObj.display();
+        for (var i = 0; i < letters.length; i++){
+            if (letters[i] === 1){
+                text(chosenWord[i],hangmanObj.x+52+i*20,hangmanObj.y+35);
+                text(chosenWord[i],hangmanObj.x+52+i*20,hangmanObj.y+35);
+                text(chosenWord[i],hangmanObj.x+52+i*20,hangmanObj.y+35);
+            }
+            
+        }
+        playerObj.display();
+        drawTM();
+        
+        if (checkVictory()){
+            println("You WON!");
+            gameState = 4;
+        }
     }
 };
 
