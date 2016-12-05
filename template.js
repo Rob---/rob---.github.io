@@ -351,10 +351,19 @@ mouseClicked = function() {
     if (gameState === 0){
         gameState = 1;
     }
+    else if (gameState === -1){
+        if (mouseX > 130 && mouseX < 300 && mouseY < 340 && mouseY > 310){
+            gameState = 0;
+        }
+    }
     else if (gameState === 1){
         var index = round(random(0,wordBank.length));
         chosenWord = wordBank[index];
-        if (mouseX > 180 && mouseX < 250 && mouseY < 190 && mouseY > 160){
+        if (mouseX > 180 && mouseX < 250 && mouseY < 140 && mouseY > 110){
+            hangmanObj.state = 0;
+            gameState = -1;
+        }
+        else if (mouseX > 180 && mouseX < 250 && mouseY < 190 && mouseY > 160){
             while (chosenWord.length >= 4){
                 index = round(random(0,wordBank.length));
                 chosenWord = wordBank[index];
@@ -707,12 +716,13 @@ var draw = function() {
         text("to choose your difficulty level!!  Good luck!!", 50, 325);
     }
     else if (gameState === 1){
-        text("Choose your starting difficulty!!", 150, 125);
+        text("Instructions",185,125);
         
         text("Easy", 200, 175);
         text("Medium", 200, 225);
         text("Hard", 200, 275);
         text("Return to starting screen",150,325);
+        
     }
     else if (gameState === 2){
         hangmanObj.display();
@@ -731,6 +741,12 @@ var draw = function() {
             println("You WON!");
             gameState = 4;
         }
+    }
+    else if (gameState === -1){
+        text("Click on the screen at the start of the game.", 100, 175);
+        text("To guess a letter for hangman, type a letter on the keyboard!", 50, 225);
+        text("You need to guess the word before the Shark finds your vehicle!", 40, 275);
+        text("Return to starting screen",150,325);
     }
 };
 
