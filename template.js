@@ -4,7 +4,7 @@ frameRate(60);
 
 
 //ProgramCodeGoesHere
-//Final Project
+//Final Project Checkpoint #2
 //Author: Robert de Vries
 
 //define the angleMode to be radians
@@ -60,7 +60,6 @@ var wordBank = [
     "Europe",
     "France",
     "Germany",
-    "UK",
     "phone",
     "cell",
     "transistor",
@@ -608,7 +607,7 @@ var tileMapHard2 = [
     "wjj   j   wwwwwj   w",
     "w wwwwjg   ww  jwwww",
     "wj    jwwwwwwwwj  gw",
-    "wwwwww wwwwwjg jwwww",
+    "wwwwww wwwwwj  jwwww",
     "wjjwwjj jwjjjwwj zww",
     "wjj  jwwj jjww jwwww",
     "wwwwwwwwwwwwwwwwwwww"
@@ -985,6 +984,7 @@ var draw = function() {
         text(endTime,150,275);
     }
 };
+
 
 
 
