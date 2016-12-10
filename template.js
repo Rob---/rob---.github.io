@@ -4,13 +4,14 @@ frameRate(60);
 
 
 //ProgramCodeGoesHere
-//Final Project Checkpoint #2
+//Final Project
 //Author: Robert de Vries
 
 //define the angleMode to be radians
 angleMode = "radians";
-
+//initialize the game state
 var gameState = 0;
+//define the wordbank used for the game
 var wordBank = [
     "hello",
     "goodbye",
@@ -96,7 +97,7 @@ var wordBank = [
     "video"
 ];
 
-//characters
+//player character, non-movable
 var player = function(x,y){
     this.x = x;
     this.y = y;
@@ -136,9 +137,6 @@ hangman.prototype.display = function(){
     for (var i = 0; i < this.wordLength; i++){
         line(this.x+i*20+50,this.y+40,this.x+i*20+60, this.y+40);
     }
-    //line(this.x+i*20+50,this.y+40,this.x+i*20+60, this.y+40);
-    //line(this.x+70,this.y+40,this.x+80, this.y+40);
-    //line(this.x+90,this.y+40,this.x+100, this.y+40);
     switch(this.state){
         case 0: //nothing
             break;
@@ -269,6 +267,7 @@ bubbleObj.prototype.draw = function() {
         }
     }    
 };
+//define the walls array so we can use for making bubbles not run into walls
 var walls = [];
 //define how the bubble pieces are drawn
 explosionObj.prototype.draw = function() {
@@ -403,17 +402,22 @@ for (var i=0; i<15; i++) {
     waves.push(new wave(30+i*amp, 100+i*period, color(0, 0, 255, 25+i*10)));
 }
 
+//instantiate the string for the word used in the game
 var chosenWord = "";
+//instantiate the array for keeping track of victory conditions
 var letters = [];
+//create the function thaht handles receiving key input
 var keyPressed = function() {
     var correctLetter = 0;
     for (var i = 0; i < chosenWord.length; i++){
-        
+        //if we received a key, go through the chosenWord and see if that letter exists
         if (key.toString() === chosenWord[i]){
             letters[i] = 1;
             correctLetter = 1;
         }
     }
+    //if the letter wasn't found in the word, then increment the hangMan object state
+    //if we are at state 6, then the player has lost
     if (!correctLetter){
         hangmanObj.state++;
         if (hangmanObj.state === 6){
@@ -421,7 +425,7 @@ var keyPressed = function() {
         }
     }
 };
-
+//check for the victory condition (they have guessed the word)
 var checkVictory = function(){
     var win = 1;
     for (var i = 0; i < letters.length; i++){
@@ -431,8 +435,9 @@ var checkVictory = function(){
     }
     return win;
 };
+//create a variable that allows for different tilemaps based on difficulty
 var difficulty;
-//define what occurs when the mouse is clicked
+//instantiate some necessary variables and arrays for the game
 var init = 0;
 var tileMap = [];
 var airs = [];
@@ -440,12 +445,13 @@ var ghosts = [];
 var dots = [];
 var joints = [];
 var pDots = [];
+//define what occurs when the mouse is clicked
 mouseClicked = function() {
 
-
+    //if we are at the title menu, move to the options screen
     if (gameState === 0){
         gameState = 1;
-    }
+    }//depending on where we click on the options screen, either start the game or go elsewhere
     else if (gameState === -1){
         if (mouseX > 130 && mouseX < 300 && mouseY < 340 && mouseY > 310){
             gameState = 0;
@@ -506,7 +512,7 @@ mouseClicked = function() {
         for (var i = 0; i < chosenWord.length; i++){
             letters[i] = 0;
         }
-    }
+    }//if we are at either end game screen and click, return the player to the title screen
     else if (gameState === 3 || gameState === 4){
         gameState = 0;
         hangmanObj.wordLength = 3;
@@ -520,7 +526,7 @@ mouseClicked = function() {
 };
 
 
-
+//define the tilemap for the easy difficulty (1 shark)
 var tileMapEasy = [
     "aaaaaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaaaaa",
@@ -543,7 +549,7 @@ var tileMapEasy = [
     "wjj  jwwj jjww jwwww",
     "wwwwwwwwwwwwwwwwwwww"
 ];
-
+//define the tilemap for the medium difficulty (2 sharks)
 var tileMapMedium = [
     "aaaaaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaaaaa",
@@ -566,7 +572,7 @@ var tileMapMedium = [
     "wjj  jwwj jjww jwwww",
     "wwwwwwwwwwwwwwwwwwww"
 ];
-
+//define the tilemap for the medium difficulty (4 sharks)
 var tileMapHard = [
     "aaaaaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaaaaa",
@@ -589,7 +595,7 @@ var tileMapHard = [
     "wjjg jwwj jjww jwwww",
     "wwwwwwwwwwwwwwwwwwww"
 ];
-
+//define the tilemap for the very hard difficulty (4 sharks, 1 is very close)
 var tileMapHard2 = [
     "aaaaaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaaaaa",
@@ -614,17 +620,17 @@ var tileMapHard2 = [
 ];
 
 
-
+//define wall objects
 var wallObj = function(x, y) {
     this.x = x;
     this.y = y;
 };
-
+//define air objects
 var airObj = function(x, y) {
     this.x = x;
     this.y = y;
 };
-
+//define ghost objects
 var ghostObj = function(x, y) {
     this.x = x;
     this.y = y;
@@ -635,29 +641,28 @@ var ghostObj = function(x, y) {
     this.angle = 0;
     this.bubbleCounter = 0;
 };
-
+//define dot objects
 var dotObj = function(x, y) {
     this.x = x;
     this.y = y;
     this.eaten = 0;
 };
-
+//define joint objects
 var jointObj = function(x, y) {
     this.x = x;
     this.y = y;
 };  
-
+//define pDotObjects
 var pDotObj = function(x, y) {
     this.x = x;
     this.y = y;
     this.eaten = 0;
 };    
 
-
-
-
+//define how the map is initialized
 var initializeTM = function() {
-    
+    //determine which tileMap we use based on the difficulty level
+    //This mainly determines the number of sharks present in the map
     if (difficulty === 0){
         tileMap = tileMapEasy;
     }
@@ -670,6 +675,7 @@ var initializeTM = function() {
     else if (difficulty === 3){
         tileMap = tileMapHard2;
     }
+    //go through the chosen tilemap and generate it.
     for (var i = 0; i < tileMap.length; i++) {
         for (var j = 0; j < tileMap[i].length; j++) {
             switch(tileMap[i][j]) {
@@ -698,17 +704,17 @@ var initializeTM = function() {
         }    
     }    
 }; 
-
+//define how wall objects are drawn
 wallObj.prototype.draw = function() {
     noStroke();
     fill(125, 125, 125);
     rect(this.x, this.y, 20, 20);
 };
-
+//define how air objects are drawn
 airObj.prototype.draw = function() {
     noStroke();
 };
-
+//define how shark objects are drawn
 ghostObj.prototype.draw = function() {
     noStroke();
     if (this.cColor === 0) {
@@ -759,7 +765,7 @@ ghostObj.prototype.draw = function() {
         }       
     }    
 };
-
+//define how shark objects collide with walls
 ghostObj.prototype.collide = function() {
     var c = 0;
     for (var i = 0; i < walls.length; i++) {
@@ -778,7 +784,7 @@ ghostObj.prototype.collide = function() {
     
     return c;
 };    
-
+//define how sharks behave at joints
 ghostObj.prototype.atJoint = function() {
     var j = 0;
     for (var i = 0; i < joints.length; i++) {
@@ -790,7 +796,7 @@ ghostObj.prototype.atJoint = function() {
     return j;
 };    
 
-///// EXPERIMENT /////
+//define how sharks move
 ghostObj.prototype.move = function() {
     if ((this.atJoint() === 1) && (random(0, 10) < 5)) {
         this.direction = floor(random(1, 5));
@@ -836,19 +842,19 @@ ghostObj.prototype.move = function() {
         gameState = 3;
     }
 };    
-
+//define how dots are drawn
 dotObj.prototype.draw = function() {
     noStroke();
     fill(0, 255, 0);
     ellipse(this.x, this.y, 7, 7);
 };
-
+//define how pDots are drawn
 pDotObj.prototype.draw = function() {
     noStroke();
     fill(9, 0, 255);
     ellipse(this.x, this.y, 15, 15);
 };
-
+//define how the tilemap is drawn
 var drawTM = function() {
     for (var i = 0; i < walls.length; i++) {
         walls[i].draw();         
@@ -873,6 +879,7 @@ var drawTM = function() {
 
 var timeCounter = 0;
 var totalTime = 0;
+//define how the game functions
 var draw = function() {
     background(34, 0, 255);
     for (var i = 0; i<waves.length; i++) {
@@ -933,6 +940,7 @@ var draw = function() {
             totalTime++;
             timeCounter = 0;
         }
+        //display thhe hangman at the proper state & the letters that have been correctly guessed
         hangmanObj.display();
         for (var i = 0; i < letters.length; i++){
             if (letters[i] === 1){
@@ -942,9 +950,11 @@ var draw = function() {
             }
             
         }
+        //draw the player
         playerObj.display();
+        //draw the tilemap
         drawTM();
-        
+        //draw bubbles
         for (var j = 0; j < bubbles.length; j++) {
             if (bubbles[j].step === 1) {
                 bubbles[j].draw();
@@ -984,7 +994,6 @@ var draw = function() {
         text(endTime,150,275);
     }
 };
-
 
 
 
