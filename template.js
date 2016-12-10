@@ -4,7 +4,7 @@ frameRate(60);
 
 
 //ProgramCodeGoesHere
-//Final Project Checkpoint #2
+//Final Project
 //Author: Robert de Vries
 
 //define the angleMode to be radians
@@ -17,7 +17,84 @@ var wordBank = [
     "afternoon",
     "water",
     "racing",
-    "hi"
+    "hi",
+    "day",
+    "evening",
+    "morning",
+    "game",
+    "design",
+    "project",
+    "to",
+    "two",
+    "too",
+    "who",
+    "how",
+    "technical",
+    "computer",
+    "engineer",
+    "engineering",
+    "computers",
+    "sharks",
+    "fish",
+    "car",
+    "vehicles",
+    "bottle",
+    "guild",
+    "mafia",
+    "internet",
+    "headphone",
+    "ears",
+    "nose",
+    "mouth",
+    "CD",
+    "scissors",
+    "coins",
+    "money",
+    "dollar",
+    "yen",
+    "pokemon",
+    "Japan",
+    "America",
+    "China",
+    "Taiwan",
+    "Europe",
+    "France",
+    "Germany",
+    "UK",
+    "phone",
+    "cell",
+    "transistor",
+    "brush",
+    "hair",
+    "eyes",
+    "finger",
+    "whale",
+    "underwater",
+    "xbox",
+    "console",
+    "monitor",
+    "embedded",
+    "khan",
+    "academy",
+    "hangman",
+    "hang",
+    "man",
+    "woman",
+    "student",
+    "teacher",
+    "professor",
+    "glass",
+    "apartment",
+    "house",
+    "move",
+    "Atlanta",
+    "Blacksburg",
+    "Sony",
+    "picture",
+    "frame",
+    "happy",
+    "wizard",
+    "video"
 ];
 
 //characters
@@ -193,11 +270,20 @@ bubbleObj.prototype.draw = function() {
         }
     }    
 };
+var walls = [];
 //define how the bubble pieces are drawn
 explosionObj.prototype.draw = function() {
     fill(this.c1, this.c2, this.c3, this.timer);	// 4th value fader
     noStroke();
-    ellipse(this.position.x, this.position.y, this.size, this.size);
+    var dontDraw = 0;
+    for (var i = 0; i < walls.length; i++){
+        if (dist(this.position.x,this.position.y, walls[i].x, walls[i].y) < 20){
+            dontDraw = 1;
+        }
+    }
+    if (!dontDraw){
+        ellipse(this.position.x, this.position.y, this.size, this.size);
+    }
     
     this.position.x += this.direction.y*cos(this.direction.x);
     this.position.y += this.direction.y*sin(this.direction.x);
@@ -323,6 +409,7 @@ var letters = [];
 var keyPressed = function() {
     var correctLetter = 0;
     for (var i = 0; i < chosenWord.length; i++){
+        
         if (key.toString() === chosenWord[i]){
             letters[i] = 1;
             correctLetter = 1;
@@ -331,7 +418,6 @@ var keyPressed = function() {
     if (!correctLetter){
         hangmanObj.state++;
         if (hangmanObj.state === 6){
-            println("Game over!");
             gameState = 3;
         }
     }
@@ -346,8 +432,18 @@ var checkVictory = function(){
     }
     return win;
 };
-
+var difficulty;
+//define what occurs when the mouse is clicked
+var init = 0;
+var tileMap = [];
+var airs = [];
+var ghosts = [];
+var dots = [];
+var joints = [];
+var pDots = [];
 mouseClicked = function() {
+
+
     if (gameState === 0){
         gameState = 1;
     }
@@ -359,21 +455,24 @@ mouseClicked = function() {
     else if (gameState === 1){
         var index = round(random(0,wordBank.length));
         chosenWord = wordBank[index];
+        
         if (mouseX > 180 && mouseX < 250 && mouseY < 140 && mouseY > 110){
+            
             hangmanObj.state = 0;
             gameState = -1;
         }
         else if (mouseX > 180 && mouseX < 250 && mouseY < 190 && mouseY > 160){
+            difficulty = 0;
             while (chosenWord.length >= 4){
                 index = round(random(0,wordBank.length));
                 chosenWord = wordBank[index];
             }
-            
             hangmanObj.wordLength = chosenWord.length;
             hangmanObj.state = 0;
             gameState = 2;
         }
         else if (mouseX > 180 && mouseX < 250 && mouseY < 240 && mouseY > 210){
+            difficulty = 1;
             while (chosenWord.length >= 6 || chosenWord.length <= 2){
                 index = round(random(0,wordBank.length));
                 chosenWord = wordBank[index];
@@ -383,6 +482,7 @@ mouseClicked = function() {
             gameState = 2;
         }
         else if (mouseX > 180 && mouseX < 250 && mouseY < 290 && mouseY > 260){
+            difficulty = 2;
             while (chosenWord.length <= 4){
                 index = round(random(0,wordBank.length));
                 chosenWord = wordBank[index];
@@ -391,19 +491,38 @@ mouseClicked = function() {
             hangmanObj.state = 0;
             gameState = 2;
         }
-        else if (mouseX > 130 && mouseX < 300 && mouseY < 340 && mouseY > 310){
+        else if (mouseX > 180 && mouseX < 250 && mouseY < 340 && mouseY > 310){
+            difficulty = 3;
+            while (chosenWord.length <= 4){
+                index = round(random(0,wordBank.length));
+                chosenWord = wordBank[index];
+            }
+            hangmanObj.wordLength = chosenWord.length;
+            hangmanObj.state = 0;
+            gameState = 2;
+        }
+        else if (mouseX > 130 && mouseX < 300 && mouseY < 390 && mouseY > 360){
             gameState = 0;
         }
-        //println(chosenWord);
         for (var i = 0; i < chosenWord.length; i++){
             letters[i] = 0;
         }
+    }
+    else if (gameState === 3 || gameState === 4){
+        gameState = 0;
+        hangmanObj.wordLength = 3;
+        hangmanObj.state = 0;
+        init = 0;
+        tileMap = [];
+        walls = [];
+        ghosts = [];
+        joints = [];
     }
 };
 
 
 
-var tileMap = [
+var tileMapEasy = [
     "aaaaaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaaaaa",
@@ -421,6 +540,75 @@ var tileMap = [
     "w wwwwj        jwwww",
     "wj    jwwwwwwwwj   w",
     "wwwwww wwwwwj  jwwww",
+    "wjjwwjj jwjjjwwj zww",
+    "wjj  jwwj jjww jwwww",
+    "wwwwwwwwwwwwwwwwwwww"
+];
+
+var tileMapMedium = [
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "w wwwwj    g   jwwww",
+    "wj   jwwwwwwwwj    w",
+    "wwwwww wwwww   jwwww",
+    "wjjww j jwwwwwwj  ww",
+    "w gwwwwwj jjwwjjwwww",
+    "wjj    www  ww wj  w",
+    "w  wwwwwwwjj  jjjwww",
+    "w  wwwj   jwwww wwww",
+    "wjj   jwwwwwwwwj   w",
+    "w wwwwj        jwwww",
+    "wj    jwwwwwwwwj   w",
+    "wwwwww wwwwwj  jwwww",
+    "wjjwwjj jwjjjwwj zww",
+    "wjj  jwwj jjww jwwww",
+    "wwwwwwwwwwwwwwwwwwww"
+];
+
+var tileMapHard = [
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "w wwwwj    g   jwwww",
+    "wj   jwwwwwwwwj    w",
+    "wwwwww wwwww   jwwww",
+    "wjjww j jwwwwwwj  ww",
+    "w gwwwwwj jjwwjjwwww",
+    "wjj    www  ww wj  w",
+    "w  wwwwwwwjj  jjjwww",
+    "w  wwwj   jwwww wwww",
+    "wjj   jwwwwwwwwj   w",
+    "w wwwwjg       jwwww",
+    "wj    jwwwwwwwwj   w",
+    "wwwwww wwwwwj  jwwww",
+    "wjjwwjj jwjjjwwj zww",
+    "wjjg jwwj jjww jwwww",
+    "wwwwwwwwwwwwwwwwwwww"
+];
+
+var tileMapHard2 = [
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaa",
+    "w wwwwj    g   jwwww",
+    "wj   jwwwwwwwwj    w",
+    "wwwwww wwwww   jwwww",
+    "wjjww j jwwwwwwj  ww",
+    "w gwwwwwj jjwwjjwwww",
+    "wjj    www  ww wj  w",
+    "w  wwwwwwwwwwwjjjwww",
+    "w  www wwwwwwww wwww",
+    "wjj   j   wwwwwj   w",
+    "w wwwwjg   ww  jwwww",
+    "wj    jwwwwwwwwj  gw",
+    "wwwwww wwwwwjg jwwww",
     "wjjwwjj jwjjjwwj zww",
     "wjj  jwwj jjww jwwww",
     "wwwwwwwwwwwwwwwwwwww"
@@ -466,14 +654,23 @@ var pDotObj = function(x, y) {
     this.eaten = 0;
 };    
 
-var walls = [];
-var airs = [];
-var ghosts = [];
-var dots = [];
-var joints = [];
-var pDots = [];
+
+
 
 var initializeTM = function() {
+    
+    if (difficulty === 0){
+        tileMap = tileMapEasy;
+    }
+    else if (difficulty === 1){
+        tileMap = tileMapMedium;
+    }
+    else if (difficulty === 2){
+        tileMap = tileMapHard;
+    }
+    else if (difficulty === 3){
+        tileMap = tileMapHard2;
+    }
     for (var i = 0; i < tileMap.length; i++) {
         for (var j = 0; j < tileMap[i].length; j++) {
             switch(tileMap[i][j]) {
@@ -673,9 +870,10 @@ var drawTM = function() {
     }
 }; 
 
-initializeTM();
 
 
+var timeCounter = 0;
+var totalTime = 0;
 var draw = function() {
     background(34, 0, 255);
     for (var i = 0; i<waves.length; i++) {
@@ -683,6 +881,7 @@ var draw = function() {
         waves[i].draw();
     }
     if (gameState === 0){
+        totalTime = 0;
         playerObj.display();
         hangmanObj.display();
         sharkObj.draw();
@@ -721,10 +920,20 @@ var draw = function() {
         text("Easy", 200, 175);
         text("Medium", 200, 225);
         text("Hard", 200, 275);
-        text("Return to starting screen",150,325);
+        text("Very Hard", 200, 325);
+        text("Return to starting screen",150,375);
         
     }
     else if (gameState === 2){
+        if (init === 0){
+            init = 1;
+            initializeTM();
+        }
+        timeCounter++;
+        if (timeCounter === 59){
+            totalTime++;
+            timeCounter = 0;
+        }
         hangmanObj.display();
         for (var i = 0; i < letters.length; i++){
             if (letters[i] === 1){
@@ -737,8 +946,24 @@ var draw = function() {
         playerObj.display();
         drawTM();
         
+        for (var j = 0; j < bubbles.length; j++) {
+            if (bubbles[j].step === 1) {
+                bubbles[j].draw();
+            } 
+            else if (bubbles[j].step === 2) {
+                for (var i = 0; i < bubbles[j].explosions.length; i++) {
+                    //draw all of the bubble's parts
+                    bubbles[j].explosions[i].draw();   
+                } 
+                if (bubbles[j].explosions[0].timer <= 0) {
+                    //remove the bubble object from the list of bubbles
+                    //once it has reached the end of it's "existence"
+                    bubbles.splice(j,1);
+                }
+            }
+        }
+        
         if (checkVictory()){
-            println("You WON!");
             gameState = 4;
         }
     }
@@ -747,6 +972,17 @@ var draw = function() {
         text("To guess a letter for hangman, type a letter on the keyboard!", 50, 225);
         text("You need to guess the word before the Shark finds your vehicle!", 40, 275);
         text("Return to starting screen",150,325);
+    }
+    else if (gameState === 3){
+        text("GAME OVER", 175, 175);
+        text("Better luck next time, click to play again!", 100, 225);
+        var endWord = "The word was: "+chosenWord;
+        text(endWord,150,275);
+    }
+    else if (gameState === 4){
+        text("Congratulations! You WON!  Click to play again!", 100, 175);
+        var endTime = "Your time was: "+totalTime+" seconds!";
+        text(endTime,150,275);
     }
 };
 
